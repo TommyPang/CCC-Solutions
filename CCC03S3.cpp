@@ -29,14 +29,6 @@ void bfs(int b, int a) {
     int v2 = q.front();
     q.pop();
 
-    /*for (int u : adj[v]) {
-      if (!used[u]) {
-        used[u] = true;
-        q.push(u);
-        dist[u] = dist[v] + 1;
-      }
-
-    }*/
     if ((v2 - 1 >= 0) && (!used[v2 - 1][v1]) && mc[v2 - 1][v1] == '.') {
       used[v2 - 1][v1] = true;
       q.push(v1);
