@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 /**
  * CCC '18 S4 - Balanced Trees
- * Question URL: Dynamic Programming
+ * Question type: Dynamic Programming
  * 15/15 on DMOJ
  * Question URL: https://dmoj.ca/problem/ccc18s4
  * @author Tommy Pang
