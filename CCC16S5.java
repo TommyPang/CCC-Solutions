@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.StringTokenizer;
 /**
  * CCC '16 S5 - Circle of Life
- * Question URL: Simulation
+ * Question type: Simulation
  * 15/15 on DMOJ
  * Question URL: https://dmoj.ca/problem/ccc16s5
  * @author Tommy Pang
