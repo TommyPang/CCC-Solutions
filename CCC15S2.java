@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 /**
  * CCC '15 S2 - Jerseys
- * Question URL: Implementation
+ * Question type: Implementation
  * 15/15 on DMOJ
  * Question URL: https://dmoj.ca/problem/ccc15s2
  * @author Tommy Pang
