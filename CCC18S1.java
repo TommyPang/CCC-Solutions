@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.StringTokenizer;
 /**
  * CCC '18 S1 - Voronoi Villages
- * Question URL: Implementation
+ * Question type: Implementation
  * 15/15 on DMOJ
  * Question URL: https://dmoj.ca/problem/ccc18s1
  * @author Tommy Pang
