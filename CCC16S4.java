@@ -4,7 +4,7 @@ import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 /**
  * CCC '16 S4 - Combining Riceballs
- * Question URL: Dynamic Programming
+ * Question type: Dynamic Programming
  * 15/15 on DMOJ
  * Question URL: https://dmoj.ca/problem/ccc16s4
  * @author Tommy Pang
