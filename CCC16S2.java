@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.StringTokenizer;
 /**
  * CCC '16 S2 - Tandem Bicycle
- * Question URL: Greedy Algorithms, Implementation
+ * Question type: Greedy Algorithms, Implementation
  * 15/15 on DMOJ
  * Question URL: https://dmoj.ca/problem/ccc16s2
  * @author Tommy Pang
