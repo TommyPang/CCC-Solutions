@@ -4,7 +4,7 @@ import java.io.InputStreamReader;
 import java.util.*;
 /**
  * CCC '16 S3 - Phonomenal Reviews
- * Question URL: Graph Theory
+ * Question type: Graph Theory
  * 13/15 on DMOJ, Batch #7 TLE
  * Question URL: https://dmoj.ca/problem/ccc16s3
  * @author Tommy Pang
