@@ -4,7 +4,7 @@ import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 /**
  * CCC '17 S1 - Sum Game
- * Question URL: Implementation
+ * Question type: Implementation
  * 15/15 on DMOJ
  * Question URL: https://dmoj.ca/problem/ccc17s1
  * @author Tommy Pang
