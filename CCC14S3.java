@@ -4,8 +4,8 @@ import java.io.InputStreamReader;
 import java.util.*;
 /**
  * CCC '14 S3 - The Geneva Confection
- * Question URL: Implementation
- * 500/500  on DMOJ
+ * Question type: Implementation
+ * 500/500 on DMOJ
  * Question URL: https://dmoj.ca/problem/ccc14s3
  * @author Tommy Pang
  */
