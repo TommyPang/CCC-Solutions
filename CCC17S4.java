@@ -4,7 +4,7 @@ import java.io.InputStreamReader;
 import java.util.*;
 /**
  * CCC '17 S4 - Minimum Cost Flow
- * Question URL: Graph Theory
+ * Question type: Graph Theory
  * 8/17 on DMOJ, TLE / WA on Batch 4-7
  * Question URL: https://dmoj.ca/problem/ccc17s4
  * @author Tommy Pang
