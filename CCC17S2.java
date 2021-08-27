@@ -4,7 +4,7 @@ import java.io.InputStreamReader;
 import java.util.*;
 /**
  * CCC '17 S2 - High Tide, Low Tide
- * Question URL: Implementation
+ * Question type: Implementation
  * 10/15 on DMOJ
  * Question URL: https://dmoj.ca/problem/ccc17s2
  * @author Tommy Pang
