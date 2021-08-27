@@ -5,7 +5,7 @@ import java.util.StringTokenizer;
 /**
  * CCC '14 S4 - Tinted Glass Window
  * Question URL: Data Structures, Geometry
- * 70/150  on DMOJ
+ * 70/150 on DMOJ, IR on Case 5-10 and 14-15
  * Question URL: https://dmoj.ca/problem/ccc14s4
  * @author Tommy Pang
  */
