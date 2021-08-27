@@ -59,7 +59,7 @@ import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 /**
  * CCC '17 S3 - Nailed It!
- * Question URL: Simple Math
+ * Question type: Simple Math
  * 15/15 on DMOJ
  * Question URL: https://dmoj.ca/problem/ccc17s3
  * @author Rivers47 on GitHub
