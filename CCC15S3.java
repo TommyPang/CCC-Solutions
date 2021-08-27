@@ -4,7 +4,7 @@ import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 /**
  * CCC '15 S3 - Gates
- * Question URL: Data Structures
+ * Question type: Data Structures
  * 15/15 on CCC, 15/30 on DMOJ
  * Question URL: https://dmoj.ca/problem/ccc15s3
  * @author Tommy Pang
