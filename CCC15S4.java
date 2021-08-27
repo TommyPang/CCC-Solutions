@@ -4,7 +4,7 @@ import java.io.InputStreamReader;
 import java.util.*;
 /**
  * CCC '15 S4 - Convex Hull
- * Question URL: Graph Theory
+ * Question type: Graph Theory
  * 15/15 on DMOJ
  * Question URL: https://dmoj.ca/problem/ccc15s4
  * @author Tommy Pang
