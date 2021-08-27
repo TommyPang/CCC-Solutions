@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 /**
  * CCC '15 S1 - Zero That Out
- * Question URL: Implementation
+ * Question type: Implementation
  * 15/15 on DMOJ
  * Question URL: https://dmoj.ca/problem/ccc15s1
  * @author Tommy Pang
