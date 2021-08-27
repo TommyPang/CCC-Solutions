@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 /**
  * CCC '14 S1 - Party Invitation
- * Question URL: Implementation
+ * Question type: Implementation
  * 500/500  on DMOJ
  * Question URL: https://dmoj.ca/problem/ccc14s2
  * @author Tommy Pang
