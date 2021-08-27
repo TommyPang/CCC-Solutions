@@ -4,7 +4,7 @@ import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 /**
  * CCC '16 S1 - Ragaman
- * Question URL: Implementation
+ * Question type: Implementation
  * 15/15 on DMOJ
  * Question URL: https://dmoj.ca/problem/ccc16s1
  * @author Tommy Pang
