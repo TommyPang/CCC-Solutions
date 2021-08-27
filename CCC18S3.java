@@ -4,7 +4,7 @@ import java.io.InputStreamReader;
 import java.util.*;
 /**
  * CCC '18 S3 - RoboThieves
- * Question URL: Graph Theory
+ * Question type: Graph Theory
  * 10/15 on DMOJ, TLE on Batch 5
  * Question URL: https://dmoj.ca/problem/ccc18s3
  * @author Tommy Pang
