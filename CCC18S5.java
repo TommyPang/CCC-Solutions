@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 /**
  * CCC '18 S5 - Maximum Strategic Savings
- * Question URL: Graph Theory
+ * Question type: Graph Theory
  * 2/15 on DMOJ, TLE / WA on Batch 3-5
  * Question URL: https://dmoj.ca/problem/ccc18s5
  * @author Tommy Pang
