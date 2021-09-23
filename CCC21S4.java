@@ -1,93 +1,110 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 /**
  * CCC '21 S4 - Daily Commute
  * Question type: Graph Theory
- * 2/15 on DMOJ, TLE on Batch 3-5
+ * 4/15 on DMOJ, TLE on Batch 4-5
  * Question URL: https://dmoj.ca/problem/ccc21s4
  * @author Tommy Pang
  */
 public class CCC21S4 {
-    static StringTokenizer st;
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    static List<Integer>[] walkWay;
-    static int N, W, D;
-    static int ans = 0;
-    static int[] route;
-    static boolean[] vis;
-    static Map<Integer, Integer> map = new HashMap<>();
-
-    public static void main(String[] args) throws IOException {
-        st = new StringTokenizer(br.readLine());
-        N = Integer.parseInt(st.nextToken());
-        W = Integer.parseInt(st.nextToken());
-        D = Integer.parseInt(st.nextToken());
-        route = new int[N + 1];
-        walkWay = new ArrayList[N + 1];
-        for (int i = 0; i <= N; i++) {
-            walkWay[i] = new ArrayList<>();
+    static PrintWriter pr = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
+    static StringTokenizer st;
+    static int mod = (int) 1e9+7, N, W, D;
+    static List<Integer> [] adj;
+    static int [] permutation;
+    public static void main(String[] args) throws IOException{
+        N = readInt(); W = readInt(); D = readInt();
+        adj = new List[N+1]; permutation = new int[N+1];
+        for (int i = 0; i < N+1; i++) {
+            adj[i] = new ArrayList<>();
         }
         for (int i = 0; i < W; i++) {
-            st = new StringTokenizer(br.readLine());
-            int a = Integer.parseInt(st.nextToken()), b = Integer.parseInt(st.nextToken());
-            walkWay[a].add(b);
+            int a = readInt(), b = readInt();
+            adj[a].add(b);
         }
-        st = new StringTokenizer(br.readLine());
-        for (int i = 1; i <= N; i++) {
-            int v = Integer.parseInt(st.nextToken());
-            route[i] = v;
-            map.put(v, i);
+        for (int i = 0; i < N; i++) {
+            permutation[i] = readInt();
         }
-        //System.out.println();
         for (int i = 0; i < D; i++) {
-            st = new StringTokenizer(br.readLine());
-            int a = Integer.parseInt(st.nextToken()), b = Integer.parseInt(st.nextToken());
-            int tempA = route[a], tempB = route[b];
-            route[b] = tempA;
-            route[a] = tempB;
-            ans = Integer.MAX_VALUE;
-            vis = new boolean[N + 1];
-            vis[1] = true;
-            recursive(1, 0, 1);
-            System.out.println(ans);
-        }
-    }
-
-    static void recursive(int cur, int time, int bus_time) {
-        if (cur == N) {
-            ans = Math.min(ans, time);
-            return;
-        }
-        for (int i = 0; i <= 1; i++) {
-            if (i == 0) {
-                if (bus_time <= N && route[bus_time] == cur) {
-                    if (bus_time + 1 <= N) {
-                        recursive(route[bus_time + 1], time + 1, bus_time + 1);
+            int a = readInt(), b = readInt();
+            int temp = permutation[a-1];
+            permutation[a-1] = permutation[b-1];
+            permutation[b-1] = temp;
+            Queue<state> queue = new LinkedList<>();
+            int time = 0; queue.add(new state(1, 0));
+            boolean [] vis = new boolean[N+1]; vis[1] = true;
+            loop:
+            while (!queue.isEmpty()) {
+                //boolean [] temp_vis = vis.clone();
+                int size = queue.size();
+                while (size>0) {
+                    state cur = queue.poll(); size--;
+                    if (cur.idx==N) {
+                        System.out.println(cur.time);
+                        break loop;
                     }
-                } else {
-                    if (map.get(cur) > bus_time) recursive(cur, time + 1, bus_time + 1);
-                    else {
-                        for (int k = 0; k < walkWay[cur].size(); k++) {
-                            if (!vis[walkWay[cur].get(k)]) {
-                                vis[walkWay[cur].get(k)] = true;
-                                recursive(walkWay[cur].get(k), time + 1, bus_time + 1);
-                                vis[walkWay[cur].get(k)] = false;
-                            }
+                    for (int nxt : adj[cur.idx]) {
+                        if (!vis[nxt]) {
+                            queue.add(new state(nxt, time+1));
+                            vis[nxt] = true;
                         }
                     }
-                }
-            }
-            if (i == 1) {
-                for (int j = 0; j < walkWay[cur].size(); j++) {
-                    if (!vis[walkWay[cur].get(j)]) {
-                        vis[walkWay[cur].get(j)] = true;
-                        recursive(walkWay[cur].get(j), time + 1, bus_time + 1);
-                        vis[walkWay[cur].get(j)] = false;
+                    int v = permutation[time];
+                    if (cur.idx==v) {
+                        if (time+1<N && !vis[permutation[time+1]]) {
+                            queue.add(new state(permutation[time+1], cur.time+1));
+                            vis[permutation[time+1]] = true;
+                        }
+                    }
+                    else {
+                        queue.add(new state(cur.idx, cur.time+1));
                     }
                 }
+                time++; //vis = temp_vis.clone();
             }
         }
+
+
+    }
+    static class state {
+        int idx, time;
+        state(int i, int t) {
+            idx = i; time = t;
+        }
+    }
+    static String next() throws IOException {
+        while (st == null || !st.hasMoreTokens())
+            st = new StringTokenizer(br.readLine().trim());
+        return st.nextToken();
+    }
+    static long readLong() throws IOException {
+        return Long.parseLong(next());
+    }
+    static int readInt() throws IOException {
+        return Integer.parseInt(next());
+    }
+    static double readDouble() throws IOException {
+        return Double.parseDouble(next());
+    }
+    static char readCharacter() throws IOException {
+        return next().charAt(0);
+    }
+    static String readLine() throws IOException {
+        return br.readLine().trim();
+    }
+    static int readLongLineInt() throws IOException{
+        int x = 0, c;
+        while((c = br.read()) != ' ' && c != '\n')
+            x = x * 10 + (c - '0');
+        return x;
+    }
+    static long pow (long x, long exp){
+        if (exp==0) return 1;
+        long t = pow(x, exp/2);
+        t = t*t %mod;
+        if (exp%2 == 0) return t;
+        return t*x%mod;
     }
 }
