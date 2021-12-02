@@ -15,68 +15,72 @@ import java.util.StringTokenizer;
 public class CCC21S3 {
     static StringTokenizer st;
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    static long [] friend_position, speed, hear_dis;
-    static int N;
-    public static void main(String[] args) throws IOException {
-        long hi = 0, lo = 0;
-        getInput();
-        if (N==1) {
-            System.out.println(0);
-            return;
+    static CodeChefSolution2.friend[] friends;
+    public static void main(String[] args) throws IOException{
+        int n = readInt();
+        friends = new CodeChefSolution2.friend[n];
+        long max = -1, min = Integer.MAX_VALUE;
+        for (int i = 0; i < n; i++) {
+            friends[i] = new CodeChefSolution2.friend(readLong(), readLong(), readLong());
+            max = Math.max(friends[i].P, max); min = Math.min(friends[i].P, min);
         }
-        long [] tempArray = friend_position.clone();
-        Arrays.sort(tempArray);
-        lo = tempArray[0];
-        hi = tempArray[tempArray.length-1];
-        while (true) {
-            long mid = (lo + hi)/2;
-            long ans = check(mid);
-            long left = check(mid-1);
-            long right = check(mid+1);
-            if (ans <= left && ans <= right) {
-                System.out.println(ans);
-                return;
-            }
-            if (left > right) {
-                lo = mid + 1;
-            } else {
-                hi = mid - 1;
+        int lo = (int) min, hi = (int) max;
+        long ans = Long.MAX_VALUE;
+        while (lo<=hi) {
+            int mid = (lo+hi)/2;
+            long centre = total(mid), l = total(mid-1), r = total(mid+1);
+            ans = Math.min(centre, ans);
+            if (l<=r) {
+                hi = mid-1;
+            }else {
+                lo = mid+1;
             }
         }
+        System.out.println(ans);
 
     }
-
-    private static void getInput() throws IOException {
-        N = Integer.parseInt(br.readLine());
-        friend_position = new long[N+1]; speed = new long[N+1]; hear_dis = new long[N+1];
-
-        for (int i = 1; i <= N; i++) {
-            st = new StringTokenizer(br.readLine());
-            long p = Integer.parseInt(st.nextToken()), s = Integer.parseInt(st.nextToken()), d = Integer.parseInt(st.nextToken());
-            friend_position[i] = p;
-            speed[i] = s;
-            hear_dis[i] = d;
-        }
-    }
-
-    static long check(long position){
+    static long total(int v) {
         long ret = 0;
-        for (int i = 1; i <= N; i++) {
-            long time = 0;
-            if (position-friend_position[i]==0) continue;
-            if (position>friend_position[i]){
-                long temp = position-friend_position[i];
-                if (temp<=hear_dis[i]) continue;
-                else time = (temp-hear_dis[i])*speed[i];
+        for (int i = 0; i < friends.length; i++) {
+            CodeChefSolution2.friend cur = friends[i];
+            long dif = Math.abs(cur.P-v);
+            if (dif<=cur.D) {
+                continue;
             }
-            else if (position<friend_position[i]){
-                long temp = friend_position[i]-position;
-                if (temp<=hear_dis[i]) continue;
-                else time = (friend_position[i]-position-hear_dis[i])*speed[i];
-            }
-            ret+=time;
+            ret += ((dif-cur.D)*cur.W);
         }
         return ret;
+    }
+    static class friend {
+        long P, W, D;
+        friend(long idx, long w, long d) { P = idx; W = w; D = d; }
+    }
+
+    static String next() throws IOException {
+        while (st == null || !st.hasMoreTokens())
+            st = new StringTokenizer(br.readLine().trim());
+        return st.nextToken();
+    }
+    static long readLong() throws IOException {
+        return Long.parseLong(next());
+    }
+    static int readInt() throws IOException {
+        return Integer.parseInt(next());
+    }
+    static double readDouble() throws IOException {
+        return Double.parseDouble(next());
+    }
+    static char readCharacter() throws IOException {
+        return next().charAt(0);
+    }
+    static String readLine() throws IOException {
+        return br.readLine().trim();
+    }
+    static int readALotInt() throws IOException{
+        int x = 0, c;
+        while((c = br.read()) != ' ' && c != '\n')
+            x = x * 10 + (c - '0');
+        return x;
     }
 
 }
