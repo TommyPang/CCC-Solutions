@@ -15,13 +15,13 @@ import java.util.StringTokenizer;
 public class CCC21S3 {
     static StringTokenizer st;
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    static CodeChefSolution2.friend[] friends;
+    static friend[] friends;
     public static void main(String[] args) throws IOException{
         int n = readInt();
-        friends = new CodeChefSolution2.friend[n];
+        friends = new friend[n];
         long max = -1, min = Integer.MAX_VALUE;
         for (int i = 0; i < n; i++) {
-            friends[i] = new CodeChefSolution2.friend(readLong(), readLong(), readLong());
+            friends[i] = new friend(readLong(), readLong(), readLong());
             max = Math.max(friends[i].P, max); min = Math.min(friends[i].P, min);
         }
         int lo = (int) min, hi = (int) max;
@@ -42,7 +42,7 @@ public class CCC21S3 {
     static long total(int v) {
         long ret = 0;
         for (int i = 0; i < friends.length; i++) {
-            CodeChefSolution2.friend cur = friends[i];
+            friend cur = friends[i];
             long dif = Math.abs(cur.P-v);
             if (dif<=cur.D) {
                 continue;
