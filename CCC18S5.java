@@ -1,112 +1,127 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 /**
  * CCC '18 S5 - Maximum Strategic Savings
- * Question type: Graph Theory
- * 2/15 on DMOJ, TLE / WA on Batch 3-5
+ * Question URL: Graph Theory
+ * 15/15 on DMOJ
  * Question URL: https://dmoj.ca/problem/ccc18s5
  * @author Tommy Pang
  */
 public class CCC18S5 {
-    static StringTokenizer st;
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    static PrintWriter pr = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
+    static StringTokenizer st;
+    static int mod = (int) 1e9+7;
     static int N, M, P, Q;
-    static List<edge> list = new ArrayList<>();
-    static long total, ans;
-    static List<node> [][] adj;
-    static int [][] vis;
-    static boolean notCyclic = true;
+    static long sumCost = 0L, MST = 0L;
     public static void main(String[] args) throws IOException {
-        st = new StringTokenizer(br.readLine());
-        N = Integer.parseInt(st.nextToken()); M = Integer.parseInt(st.nextToken());
-        P = Integer.parseInt(st.nextToken()); Q = Integer.parseInt(st.nextToken());
-        adj = new ArrayList[M+1][M+1]; vis = new int[M+1][M+1];
-        for (int i = 0; i < P; i++) {
-            st = new StringTokenizer(br.readLine());
-            int a = Integer.parseInt(st.nextToken()), b = Integer.parseInt(st.nextToken());
-            int c = Integer.parseInt(st.nextToken());
-            total+=(long)c*(long)N;
-            for (int j = 1; j <= N; j++) {
-                node begin = new node(j, a);
-                node end = new node(j, b);
-                if (a==b) break;
-                list.add(new edge(begin, end, c));
-            }
+        N = readInt(); M = readInt(); P = readInt(); Q = readInt();
+        List<edge> edges = new ArrayList<>();
+        for (int i = 1; i <= P; i++) {
+            int a = readInt(), b = readInt(), c = readInt();
+            sumCost += (long)c*N;
+            edges.add(new edge(a, b, c, false));
         }
-        for (int i = 0; i < Q; i++) {
-            st = new StringTokenizer(br.readLine());
-            int planetA = Integer.parseInt(st.nextToken()), planetB = Integer.parseInt(st.nextToken());
-            int c = Integer.parseInt(st.nextToken());
-            total+=(long)M*(long)c;
-            for (int j = 1; j <= M; j++) {
-                node begin = new node(planetA, j);
-                node end = new node(planetB, j);
-                if (planetA==planetB) break;
-                list.add(new edge(begin, end, c));
-            }
+        for (int i = 1; i <= Q; i++) {
+            int a = readInt(), b = readInt(), c = readInt();
+            sumCost += (long)c*M;
+            edges.add(new edge(a, b, c, true));
         }
-        Collections.sort(list);
-        MST();
-        System.out.println(total-ans);
-    }
-    static void MST(){
-        long V = 0;
-        for (int i = 0; i < M+1; i++) {
-            for (int j = 0; j < M+1; j++) {
-                adj[i][j] = new ArrayList<>();
-            }
-        }
-        for (edge e : list) {
-            vis = new int[M+1][M+1];
-            notCyclic = true;
-            adj[e.a.planet][e.a.city].add(e.b);
-            adj[e.b.planet][e.b.city].add(e.a);
-            if (notCyclic(e.a, e.a, e.a)){
-                V+=1;
-                ans += e.v;
+        Collections.sort(edges);
+        DS cities = new DS(N);
+        DS planets = new DS(M);
+        for (edge nxt : edges) {
+            if (!nxt.v) {
+                if (planets.n!= 0 && planets.find(nxt.a) != planets.find(nxt.b)) {
+                    MST+=(long) cities.n * nxt.c;
+                    planets.union(planets.find(nxt.a), planets.find(nxt.b));
+                    planets.n--;
+                }
             }
             else {
-                adj[e.a.planet][e.a.city].remove(e.b);
-                adj[e.b.planet][e.b.city].remove(e.a);
+                if (cities.n!= 0 && cities.find(nxt.a) != cities.find(nxt.b)) {
+                    MST+=(long)planets.n * nxt.c;
+                    cities.union(cities.find(nxt.a), cities.find(nxt.b));
+                    cities.n--;
+                }
             }
-            if (V==(long)N*(long)M-1) break;
         }
+        System.out.println(sumCost-MST);
     }
-    static boolean notCyclic(node cur, node pre, node start){
-        if (!notCyclic) return false;
-        vis[cur.planet][cur.city] = 1;
-        for (node n : adj[cur.planet][cur.city]) {
-            if (vis[n.planet][n.city]==1 && n.planet != pre.planet && n.city != pre.city && n.planet == start.planet && n.city == start.city){
-                notCyclic = false;
-                return false;
-            }
-            else if (vis[n.planet][n.city]==0) return notCyclic(n, cur, start);
-        }
-        vis[cur.planet][cur.city] = 2;
-        return true;
-    }
-    static class node{
-        int planet; int city;
-        node(int p, int c){
-            planet = p; city = c;
-        }
-    }
-    static class edge implements Comparable<edge>{
-        long v;
-        node a, b;
-        edge(node begin, node end, int cost){
-            a = begin; b = end; v = cost;
+    static class edge implements Comparable<edge> {
+        int a, b, c;
+        boolean v;
+        public edge(int start, int end, int w, boolean portal){
+            a = start; b = end; c = w; v = portal;
         }
 
         @Override
         public int compareTo(edge o) {
-            return Long.compare(v, o.v);
+            return Long.compare (c, o.c);
         }
+    }
+    static class DS {
+        int [] leader;
+        int n;
+        public DS(int len) {
+            n = len;
+            leader = new int[len+1];
+            for (int i = 1; i <= n; i++) {
+                leader[i] = i;
+            }
+        }
+        void union(int a, int b){
+            leader[a] = b;
+        }
+        int find(int n) {
+            if (n != leader[n]){
+                leader[n] = find(leader[n]);
+            }
+            return leader[n];
+        }
+    }
 
+    static String next() throws IOException {
+        while (st == null || !st.hasMoreTokens())
+            st = new StringTokenizer(br.readLine().trim());
+        return st.nextToken();
+    }
+    static long readLong() throws IOException {
+        return Long.parseLong(next());
+    }
+    static int readInt() throws IOException {
+        return Integer.parseInt(next());
+    }
+    static double readDouble() throws IOException {
+        return Double.parseDouble(next());
+    }
+    static char readCharacter() throws IOException {
+        return next().charAt(0);
+    }
+    static String readLine() throws IOException {
+        return br.readLine().trim();
+    }
+    static int readLongLineInt() throws IOException{
+        int x = 0, c;
+        while((c = br.read()) != ' ' && c != '\n')
+            x = x * 10 + (c - '0');
+        return x;
+    }
+    static long pow (long x, long exp){
+        if (exp==0) return 1;
+        long t = pow(x, exp/2);
+        t = t*t %mod;
+        if (exp%2 == 0) return t;
+        return t*x%mod;
+    }
+    static long lcm(long a, long b) {
+        return (a / gcd(a, b)) * b;
+    }
+    static long gcd(long a, long b) {
+        if (b == 0) return a;
+        return gcd(b, a % b);
     }
 }
