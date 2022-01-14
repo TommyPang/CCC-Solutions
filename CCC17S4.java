@@ -1,98 +1,138 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 /**
  * CCC '17 S4 - Minimum Cost Flow
- * Question type: Graph Theory
- * 8/17 on DMOJ, TLE / WA on Batch 4-7
+ * Question URL: Graph Theory
+ * 17/17 on DMOJ
  * Question URL: https://dmoj.ca/problem/ccc17s4
  * @author Tommy Pang
  */
 public class CCC17S4 {
-    static StringTokenizer st;
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    static List<Integer> row = new ArrayList<>(), col = new ArrayList<>();
-    static int [] vis = new int[100001];
-    static List<Integer> [] adj = new ArrayList[100001];
-    static boolean isCyclic = false;
-    static List<edge> arr = new ArrayList<>();
+    static PrintWriter pr = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
+    static StringTokenizer st;
+    static int mod = (int) 1e9+7;
+    static int N, M, D;
+    static int [] leader, rank;
+    static Map<String, Integer> path = new HashMap<>();
+    static List<edge> pipes = new ArrayList<>(), current = new ArrayList<>();
     public static void main(String[] args) throws IOException {
-        st = new StringTokenizer(br.readLine());
-        int N = Integer.parseInt(st.nextToken()), M = Integer.parseInt(st.nextToken()), D = Integer.parseInt(st.nextToken());
-        if (N==5&&M==6&D==2) { // This Solution Only Works for D=0
-            System.out.println(2);
-            return;
-        }
-        for (int i = 0; i < 100001; i++) {
-            adj[i] = new ArrayList<>();
-        }
-        int used = 0, to_activate = 0, activated_num = 0;
-        activated_num=N-1;
+        N = readInt(); M = readInt(); D = readInt();
+        leader = new int[N+1]; rank = new int[N+1];
+        make_set();
         for (int i = 1; i <= M; i++) {
-            st = new StringTokenizer(br.readLine());
-            int a = Integer.parseInt(st.nextToken()), b = Integer.parseInt(st.nextToken()); long c = Long.parseLong(st.nextToken());
-            if (i<=N-1) {
-                row.add(a); col.add(b);
-            }
-            arr.add(new edge(a, b, c));
+            edge pipe = new edge(readInt(), readInt(), readInt(), i);
+            pipes.add(pipe);
+            if (i<=N-1) current.add(pipe);
         }
-        Collections.sort(arr);
-        int edge_num = 0;
-        for (edge e : arr) {
-            if (edge_num==N-1){
-                break;
+        Collections.sort(pipes);
+        int max = 0;
+        for (edge nxt : pipes) {
+            if (find(nxt.a) != find(nxt.b)) {
+                union(nxt.a, nxt.b);
+                path.put(nxt.a + "-" + nxt.b + "-" + nxt.c, nxt.c);
+                max = Math.max(max, nxt.c);
             }
-            adj[e.a].add(e.b);
-            adj[e.b].add(e.a);
-            Arrays.fill(vis, 0);
-            isCyclic = false;
-            cycle(e.a, -1, e.a);
-            if (isCyclic){
-                adj[e.a].remove(Integer.valueOf(e.b));
-                adj[e.b].remove(Integer.valueOf(e.a));
-            }
-            else {
-                edge_num+=1;
-                boolean success = false;
-                for (int i = 0; i < row.size(); i++) {
-                    if (row.get(i) == e.a && col.get(i) == e.b) {
-                        used+=1;
-                        success = true;
+        }
+        int toActivate = 0, toDeactivate = 0, acticated = 0;
+        for (edge nxt : current) {
+            if (!path.containsKey(nxt.a + "-" + nxt.b + "-" + nxt.c)) toDeactivate++;
+            else acticated++;
+        }
+        toActivate = path.size() - acticated;
+        int cnt = Math.max(toActivate, toDeactivate);
+        if (D==0) System.out.println(cnt);
+        else {
+            make_set();
+            for (edge nxt : pipes) {
+                if (find(nxt.a) != find(nxt.b)) {
+                    if (nxt.c<max || (nxt.idx<=N-1 && nxt.c==max)) {
+                        union(nxt.a, nxt.b);
+                    }
+                    else if (nxt.c<=D && nxt.idx<=N-1) {
+                        cnt--;
                         break;
                     }
                 }
-                if (!success) to_activate+=1;
+            }
+            System.out.println(cnt);
+        }
+    }
+    static void make_set() {
+        for (int i = 1; i <= N; i++) {
+            leader[i] = i;
+            rank[i] = 0;
+        }
+    }
+    static void union(int a, int b){
+        a = find(a); b = find(b);
+        if(a != b) {
+            if (rank[a] > rank[b]) {
+                rank[a]++;
+                leader[b] = a;
+            } else {
+                rank[b]++;
+                leader[a] = b;
             }
         }
-        int ans = Math.max(activated_num-used, to_activate);
-        System.out.println(ans);
+    }
+    static int find(int n){
+        if (n != leader[n]){
+            leader[n] = find(leader[n]);
+        }
+        return leader[n];
+    }
 
-    }
-    static void cycle(int a, int pre, int start){
-        vis[a] = 1;
-        if (isCyclic) return;
-        for (int i : adj[a]) {
-            if (vis[i] == 1 && i!=pre && i==start){
-                isCyclic = true;
-                return;
-            }
-            else if (vis[i] == 0) {
-                cycle(i, a, start);
-            }
-        }
-        vis[a] = 2;
-    }
-    public static class edge implements Comparable<edge>{
-        int a, b;
-        long w;
-        edge(int begin, int end, long d){
-            a = begin; b = end; w = d;
+    static class edge implements Comparable<edge> {
+        int a, b, c, idx;
+        public edge(int start, int end, int w, int i){
+            a = start; b = end; c = w; idx = i;
         }
 
         @Override
         public int compareTo(edge o) {
-            return Long.compare(w, o.w);
+            return Long.compare (c, o.c);
         }
+    }
+
+    static String next() throws IOException {
+        while (st == null || !st.hasMoreTokens())
+            st = new StringTokenizer(br.readLine().trim());
+        return st.nextToken();
+    }
+    static long readLong() throws IOException {
+        return Long.parseLong(next());
+    }
+    static int readInt() throws IOException {
+        return Integer.parseInt(next());
+    }
+    static double readDouble() throws IOException {
+        return Double.parseDouble(next());
+    }
+    static char readCharacter() throws IOException {
+        return next().charAt(0);
+    }
+    static String readLine() throws IOException {
+        return br.readLine().trim();
+    }
+    static int readLongLineInt() throws IOException{
+        int x = 0, c;
+        while((c = br.read()) != ' ' && c != '\n')
+            x = x * 10 + (c - '0');
+        return x;
+    }
+    static long pow (long x, long exp){
+        if (exp==0) return 1;
+        long t = pow(x, exp/2);
+        t = t*t %mod;
+        if (exp%2 == 0) return t;
+        return t*x%mod;
+    }
+    static long lcm(long a, long b) {
+        return (a / gcd(a, b)) * b;
+    }
+    static long gcd(long a, long b) {
+        if (b == 0) return a;
+        return gcd(b, a % b);
     }
 }
