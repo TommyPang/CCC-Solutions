@@ -14,8 +14,7 @@ public class CCC17S4 {
     static int mod = (int) 1e9+7;
     static int N, M, D;
     static int [] leader, rank;
-    static Map<String, Integer> path = new HashMap<>();
-    static List<edge> pipes = new ArrayList<>(), current = new ArrayList<>();
+    static List<edge> pipes = new ArrayList<>();
     public static void main(String[] args) throws IOException {
         N = readInt(); M = readInt(); D = readInt();
         leader = new int[N+1]; rank = new int[N+1];
@@ -23,24 +22,18 @@ public class CCC17S4 {
         for (int i = 1; i <= M; i++) {
             edge pipe = new edge(readInt(), readInt(), readInt(), i);
             pipes.add(pipe);
-            if (i<=N-1) current.add(pipe);
         }
         Collections.sort(pipes);
-        int max = 0;
+        int max = 0, activated = 0, toActivate = 0;
         for (edge nxt : pipes) {
             if (find(nxt.a) != find(nxt.b)) {
                 union(nxt.a, nxt.b);
-                path.put(nxt.a + "-" + nxt.b + "-" + nxt.c, nxt.c);
                 max = Math.max(max, nxt.c);
+                if (nxt.idx>N-1) toActivate++;
+                else activated++;
             }
         }
-        int toActivate = 0, toDeactivate = 0, acticated = 0;
-        for (edge nxt : current) {
-            if (!path.containsKey(nxt.a + "-" + nxt.b + "-" + nxt.c)) toDeactivate++;
-            else acticated++;
-        }
-        toActivate = path.size() - acticated;
-        int cnt = Math.max(toActivate, toDeactivate);
+        int cnt = Math.max(toActivate, N-1-activated);
         if (D==0) System.out.println(cnt);
         else {
             make_set();
