@@ -2,7 +2,7 @@ import java.io.*;
 import java.util.*;
 /**
  * CCC '17 S4 - Minimum Cost Flow
- * Question URL: Graph Theory
+ * Question Type: Graph Theory
  * 17/17 on DMOJ
  * Question URL: https://dmoj.ca/problem/ccc17s4
  * @author Tommy Pang
