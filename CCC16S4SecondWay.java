@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 /**
  * CCC '16 S4 - Combining Riceballs
- * Question URL: Dynamic Programming
+ * Question Type: Dynamic Programming
  * 15/15 on DMOJ
  * Question URL: https://dmoj.ca/problem/ccc16s4
  * @author Milliken high school -> http://mmhs.ca/ccc/index.htm
