@@ -1,61 +1,84 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 /**
  * CCC '12 S5 - Mouse Journey
  * Question type: Dynamic Programming
- * 60/70 on DMOJ, case 5 tle
+ * 70/70 on DMOJ
  * Question URL: https://dmoj.ca/problem/ccc12s5
  * @author Tommy Pang
  */
 public class CCC12S5 {
-    static StringTokenizer st;
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    static int [][] map;
-    static int R, C;
+    static PrintWriter pr = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
+    static StringTokenizer st;
+    static int mod = (int) 1e9+7;
+    static int [][] dp;
+    static boolean [][] hasCat, vis;
+    static int R, C, K;
     public static void main(String[] args) throws IOException {
-        st = new StringTokenizer(br.readLine());
-        R = Integer.parseInt(st.nextToken());
-        C = Integer.parseInt(st.nextToken());
-        map = new int[R+1][C+1];
-        int N = Integer.parseInt(br.readLine());
-        for (int i = 0; i < N; i++) {
-            st = new StringTokenizer(br.readLine());
-            map[Integer.parseInt(st.nextToken())][Integer.parseInt(st.nextToken())] = Integer.MAX_VALUE;
+        R = readInt(); C = readInt(); K = readInt();
+        hasCat = new boolean[R+1][C+1]; dp = new int[R+1][C+1]; vis = new boolean[R+1][C+1];
+        for (int i = 1; i <= K; i++) {
+            hasCat[readInt()][readInt()] = true;
         }
-        if (map[R][C]==Integer.MAX_VALUE) System.out.println(0);
-        else {
-            recursion(1, 1);
-            System.out.println(map[R][C]);
+        for (int[] arr : dp) {
+            Arrays.fill(arr, -1);
         }
+        System.out.println(dfs(1, 1));
     }
-    static void recursion(int r, int c){
-        if (c+1<=C){
-            if (c+1==C && r==R){
-                map[r][c+1] += 1;
-                return;
-            }
-            if (map[r][c+1]!=Integer.MAX_VALUE){
-                if (map[r][c+1]!=0) map[r][c] += map[r][c+1];
-                else {
-                    recursion(r, c + 1);
-                    map[r][c] += map[r][c+1];
-                }
-            }
-        }
-        if (r+1<=R){
-            if (r+1==R && c==C){
-                map[r+1][c] += 1;
-                return;
-            }
-            if (map[r+1][c]!=Integer.MAX_VALUE){
-                if (map[r+1][c]!=0) map[r][c] += map[r+1][c];
-                else {
-                    recursion(r + 1, c);
-                    map[r][c] += map[r+1][c];
-                }
-            }
-        }
+    public static int dfs(int r, int c) {
+        if (r<1 || c<1 || r>R || c>C || hasCat[r][c] || vis[r][c]) return 0;
+        if (r==R && c==C) return 1;
+        if (dp[r][c]!=-1) return dp[r][c];
+        int ret = 0;
+        vis[r][c] = true;
+        ret += dfs(r, c+1);
+        ret += dfs(r+1, c);
+        dp[r][c] = ret;
+        vis[r][c] = false;
+        return ret;
+    }
+
+
+    static String next() throws IOException {
+        while (st == null || !st.hasMoreTokens())
+            st = new StringTokenizer(br.readLine().trim());
+        return st.nextToken();
+    }
+    static long readLong() throws IOException {
+        return Long.parseLong(next());
+    }
+    static int readInt() throws IOException {
+        return Integer.parseInt(next());
+    }
+    static double readDouble() throws IOException {
+        return Double.parseDouble(next());
+    }
+    static char readCharacter() throws IOException {
+        return next().charAt(0);
+    }
+    static String readLine() throws IOException {
+        return br.readLine().trim();
+    }
+    static int readLongLineInt() throws IOException{
+        int x = 0, c;
+        while((c = br.read()) != ' ' && c != '\n')
+            x = x * 10 + (c - '0');
+        return x;
+    }
+    static long pow (long x, long exp){
+        if (exp==0) return 1;
+        long t = pow(x, exp/2);
+        t = t*t %mod;
+        if (exp%2 == 0) return t;
+        return t*x%mod;
+    }
+    static long lcm(long a, long b) {
+        return (a / gcd(a, b)) * b;
+    }
+    static long gcd(long a, long b) {
+        if (b == 0) return a;
+        return gcd(b, a % b);
     }
 }
