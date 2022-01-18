@@ -36,7 +36,7 @@ public class CCC03S3 {
                 F-=rooms.get(i);
             }
             else {
-                if (i==rooms.size()-1) {
+                if (i==1) {
                     System.out.println(i + " room, " + F + " square metre(s) left over");
                 }
                 else System.out.println(i + " rooms, " + F + " square metre(s) left over");
