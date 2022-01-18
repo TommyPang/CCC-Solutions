@@ -25,7 +25,6 @@ public class CCC02S4 {
         }
         Arrays.fill(dp, Integer.MAX_VALUE);
         dp[0] = 0;
-        path[0] = -1;
         for (int i = 1; i <= Q; i++) {
             for (int j = 1; j <= M; j++) {
                 if (i-j>=0) {
@@ -41,11 +40,10 @@ public class CCC02S4 {
         int cur = Q;
         List<Integer> order = new ArrayList<>();
         order.add(cur);
-        while (path[cur]!=-1) {
+        while (path[cur]!=0) {
             order.add(path[cur]);
             cur = path[cur];
         }
-        order.remove(order.size()-1);
         Collections.reverse(order);
         int lst = 1;
         System.out.println("Total Time: " + dp[Q]);
