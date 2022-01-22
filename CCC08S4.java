@@ -1,70 +1,117 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 /**
  * CCC '08 S4 - Twenty-four
  * Question type: Graph Theory
- * 3/5 on DMOJ, case 1, 3 WA
+ * 5/5 on DMOJ
+ * Question URL: https://dmoj.ca/problem/ccc08s4
  * @author Tommy Pang
  */
 public class CCC08S4 {
-    static StringTokenizer st;
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    static int max;
-    static int [] numbers;
-    static boolean [] vis;
+    static PrintWriter pr = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
+    static StringTokenizer st;
+    static int mod = (int) 1e9+7, T, largest;
+    static List<Integer> cards;
     public static void main(String[] args) throws IOException {
-        int N = Integer.parseInt(br.readLine());
-        for (int i = 0; i < N; i++) {
-            max = -1;
-            numbers = new int[4]; vis = new boolean[4];
+        T = readInt();
+        for (int i = 0; i < T; i++) {
+            cards = new ArrayList<>();
+            largest = 0;
             for (int j = 0; j < 4; j++) {
-                numbers[j] = Integer.parseInt(br.readLine());
+                cards.add(readInt());
             }
-            for (int j = 0; j < 4; j++) {
-                vis[j] = true;
-                recursion(numbers[j], 1);
-                vis = new boolean[4];
-            }
-            System.out.println(max);
+            recursion(cards);
+            System.out.println(largest);
         }
     }
-    static void recursion(int num, int used){
-        if (used==4) {
-            if (num<=24) {
-                max = Math.max(num, max);
-            }
+    public static void recursion(List<Integer> list) {
+        if (list.size()==1) {
+            if (list.get(0)<=24) largest = Math.max(largest, list.get(0));
             return;
         }
-        for (int i = 0; i < 4; i++) {
-            if (vis[i]) continue;
-            for (int j = 0; j < 4; j++) {
-                switch (j){
-                    case 0:
-                        vis[i] = true;
-                        recursion(num+numbers[i], used+1);
-                        vis[i] = false;
-                        break;
-                    case 1:
-                        vis[i] = true;
-                        recursion(num-numbers[i], used+1);
-                        vis[i] = false;
-                        break;
-                    case 2:
-                        vis[i] = true;
-                        recursion(num*numbers[i], used+1);
-                        vis[i] = false;
-                        break;
-                    case 3:
-                        if (num%numbers[i]==0){
-                            vis[i] = true;
-                            recursion(num/numbers[i], used+1);
-                            vis[i] = false;
-                        }
-                        break;
+        List<Integer> nxt = new ArrayList<>(list);
+        for (int i = 0; i < list.size(); i++) {
+            for (int j = i+1; j < list.size(); j++) {
+                if (i==j) continue;
+                int v1 = list.get(i), v2 = list.get(j);
+                // addition
+                list.remove(i); list.remove(j-1);
+                list.add(v1+v2);
+                recursion(list);
+                list = new ArrayList<>(nxt);
+                // subtraction 1
+                list.remove(i); list.remove(j-1);
+                list.add(v1-v2);
+                recursion(list);
+                list = new ArrayList<>(nxt);
+                // subtraction 2
+                list.remove(i); list.remove(j-1);
+                list.add(v2-v1);
+                recursion(list);
+                list = new ArrayList<>(nxt);
+                // multiplication
+                list.remove(i); list.remove(j-1);
+                list.add(v1*v2);
+                recursion(list);
+                list = new ArrayList<>(nxt);
+                // division
+                if (v2!=0 && v1%v2==0) {
+                    list.remove(i); list.remove(j-1);
+                    list.add(v1/v2);
+                    recursion(list);
+                    list = new ArrayList<>(nxt);
+                }
+                else if (v1!=0 && v2%v1==0) {
+                    list.remove(i); list.remove(j-1);
+                    list.add(v2/v1);
+                    recursion(list);
+                    list = new ArrayList<>(nxt);
                 }
             }
         }
+    }
+
+    static String next() throws IOException {
+        while (st == null || !st.hasMoreTokens())
+            st = new StringTokenizer(br.readLine().trim());
+        return st.nextToken();
+    }
+    static long readLong() throws IOException {
+        return Long.parseLong(next());
+    }
+    static int readInt() throws IOException {
+        return Integer.parseInt(next());
+    }
+    static double readDouble() throws IOException {
+        return Double.parseDouble(next());
+    }
+    static char readCharacter() throws IOException {
+        return next().charAt(0);
+    }
+    static String readLine() throws IOException {
+        return br.readLine().trim();
+    }
+    static int readLongLineInt() throws IOException{
+        int x = 0, c;
+        while((c = br.read()) != ' ' && c != '\n')
+            x = x * 10 + (c - '0');
+        return x;
+    }
+    static long pow (long x, long exp){
+        if (exp==0) return 1;
+        long t = pow(x, exp/2);
+        t = t*t %mod;
+        if (exp%2 == 0) return t;
+        return t*x%mod;
+    }
+    static long lcm(long a, long b) {
+        return (a / gcd(a, b)) * b;
+    }
+    static long gcd(long a, long b) {
+        if (b == 0) return a;
+        return gcd(b, a % b);
     }
 }
