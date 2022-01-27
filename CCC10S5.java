@@ -21,43 +21,47 @@ public class CCC10S5 {
         System.out.println(root.dp[X]);
     }
     static void solve(TreeNode cur, int growth) {
-        if (cur.l == null) {
+        if (cur.l == null || cur.r==null) {
             cur.dp = new int[growth+1];
             for (int i = 0; i <= growth; i++) {
-                cur.dp[i] = cur.val + i;
+                cur.dp[i] = cur.val + i; // initialize dp array
             }
             return;
         }
-        solve(cur.l, growth);
+        solve(cur.l, growth); // dfs on left tree
         // L[i] -> for the left tree, given i growth agents
         // what is the maximum amount of nutrients that can arrive at the current node
         int [] L = new int[growth+1];
         for (int i = 0; i <= growth; i++) {
             int max = 0;
             for (int j = 0; j <= i; j++) {
-                int temp = Math.min((1+j)*(1+j), cur.l.dp[i-j]);
-                if (temp>max) max = temp;
+                int temp = Math.min((1+j)*(1+j), cur.l.dp[i-j]); // refine the current edge to have weight (1+j)*(1+j)
+                if (temp>max) max = temp; // find maximum nutrients
             }
-            L[i] = max;
+            L[i] = max; // update left tree
         }
-        solve(cur.r, growth);
+
+        solve(cur.r, growth); // dfs on right tree
+        // R[i] -> for the right tree, given i growth agents
+        // what is the maximum amount of nutrients that can arrive at the current node
         int [] R = new int[growth+1];
         for (int i = 0; i <= growth; i++) {
             int max = 0;
             for (int j = 0; j <= i; j++) {
-                int temp = Math.min((1+j)*(1+j), cur.r.dp[i-j]);
-                if (temp>max) max = temp;
+                int temp = Math.min((1+j)*(1+j), cur.r.dp[i-j]); // refine the current edge to have weight (1+j)*(1+j)
+                if (temp>max) max = temp; // find maximum nutrients
             }
-            R[i] = max;
+            R[i] = max; // update right tree
         }
-        cur.dp = new int[growth+1];
-        for (int i = 0; i <= growth; i++) {
+        cur.dp = new int[growth+1]; // dp array for the current node
+        for (int i = 0; i <= growth; i++) { // we can allocate [0, growth] agents to the current node
             int max = 0;
             for (int j = 0; j <= i; j++) {
-                int temp = L[j]+R[i-j];
+                // apply j units of agents on the left tree and therefore i-j units agents on the right
+                int temp = L[j]+R[i-j]; 
                 if (temp>max) max = temp;
             }
-            cur.dp[i] = max;
+            cur.dp[i] = max; // update dp value
         }
 
     }
@@ -66,18 +70,19 @@ public class CCC10S5 {
         if (s.charAt(0)!='(') return new TreeNode(Integer.parseInt(s)); // create leaf node
         s = s.substring(1, s.length()-1).trim(); // get rid of otter brackets
         int idx = -1, l = -1; // l -> number of left bracket, idx is where the tree splits
-        if (s.charAt(0)=='(') { // if start with left brackets then get the string for the whole subtree
+        if (s.charAt(0)=='(') { // if start with left brackets then left tree is not single node
             l = 1; idx = 1;
-            while (l>0) {
+            while (l>0) { // find matching pair of brackets
                 if (s.charAt(idx)=='(') l++;
                 else if (s.charAt(idx)==')') l--;
                 idx++;
             }
         }
-        else {
-            idx = s.indexOf(' ');
+        else { // the left tree is a single node
+            idx = s.indexOf(' '); // directly get the first white space  
         }
-        return new TreeNode(buildTree(s.substring(0, idx)), buildTree(s.substring(idx+1)));
+        // build tree separating the left and right subtree
+        return new TreeNode(buildTree(s.substring(0, idx)), buildTree(s.substring(idx+1))); 
 
     }
 
