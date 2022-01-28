@@ -1,67 +1,65 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 /**
  * CCC '14 S3 - The Geneva Confection
- * Question type: Implementation
- * 500/500 on DMOJ
+ * Question URL: Implementation
+ * 500/500  on DMOJ
  * Question URL: https://dmoj.ca/problem/ccc14s3
  * @author Tommy Pang
  */
 public class CCC14S3 {
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    static PrintWriter pr = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
     static StringTokenizer st;
+    static int mod = (int) 1e9+7, T, n;
+    static Stack<Integer> stk;
     public static void main(String[] args) throws IOException {
-        int T = Integer.parseInt(br.readLine());
+        T = readInt();
         for (int i = 0; i < T; i++) {
-            int N = Integer.parseInt(br.readLine());
-            List<Integer> ingredients = new ArrayList<>();
-            List<Integer> branch = new ArrayList<>();
-            for (int j = 0; j < N; j++) {
-                ingredients.add(Integer.parseInt(br.readLine()));
+            n = readInt();
+            stk = new Stack<>();
+            int cur = 1, idx = n-1;
+            int [] line = new int[n];
+            for (int j = 0; j < n; j++) {
+                line[j] = readInt();
             }
-            int idx = 1;
-            int in_size = ingredients.size()-1;
-            int br_size = -1;
-            while (true){
-                if (idx==N+1) {
-                    System.out.println("Y");
-                    break;
+            while (cur<=n && idx>=0) {
+                if (line[idx]==cur) {
+                    cur++;
+                    idx--;
                 }
-                if (in_size==-1){
-                    if (branch.get(br_size) != idx){
-                        System.out.println("N");
-                        break;
-                    }
-                    else {
-                        branch.remove(br_size);
-                        idx+=1;
-                        br_size-=1;
-                        continue;
-                    }
-                }
-                if (ingredients.get(in_size) != idx) {
-                    if (br_size!=-1 && branch.get(br_size) == idx){
-                        idx+=1;
-                        branch.remove(br_size);
-                        br_size-=1;
-                    }
-                    else {
-                        branch.add(ingredients.get(in_size));
-                        br_size+=1;
-                        ingredients.remove(in_size);
-                        in_size-=1;
-                    }
+                else if (!stk.isEmpty() && stk.peek()==cur) {
+                    cur++; stk.pop();
                 }
                 else {
-                    idx+=1;
-                    ingredients.remove(in_size);
-                    in_size-=1;
+                    stk.push(line[idx]);
+                    idx--;
                 }
 
-
             }
+            boolean can = true;
+            for (int j = cur; j <= n; j++) {
+                if (stk.peek()!=j) {
+                    can = false;
+                    break;
+                }
+                stk.pop();
+            }
+            System.out.println(can?"Y":"N");
         }
     }
+
+
+    static String next() throws IOException {
+        while (st == null || !st.hasMoreTokens())
+            st = new StringTokenizer(br.readLine().trim());
+        return st.nextToken();
+    }
+    static long readLong() throws IOException {
+        return Long.parseLong(next());
+    }
+    static int readInt() throws IOException {
+        return Integer.parseInt(next());
+    }
+
 }
