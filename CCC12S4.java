@@ -1,140 +1,108 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 /**
  * CCC '12 S4 - A Coin Game
  * Question type: Graph Theory
- * 30/50 on DMOJ, case 4, 5 tle
+ * 50/50 on DMOJ
  * Question URL: https://dmoj.ca/problem/ccc12s4
  * @author Tommy Pang
  */
 public class CCC12S4 {
-    static StringTokenizer st;
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    static List<Integer> [] states;
-    static List<List<Integer> []> vis;
-    static int N;
+    static PrintWriter pr = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
+    static StringTokenizer st;
+    static int mod = (int) 1e9+7, n;
+    static Map<String, String> vis;
     public static void main(String[] args) throws IOException {
-        while (true) {
-            N = Integer.parseInt(br.readLine());
-            if (N==0) return;
-            st = new StringTokenizer(br.readLine());
-            states = new ArrayList[N + 1];
-            vis = new ArrayList<>();
-            for (int i = 0; i < N + 1; i++) {
-                states[i] = new ArrayList<>();
+        n = readInt();
+        do {
+            vis = new HashMap<>();
+            List<Integer> [] table = new List[n];
+            for (int i = 0; i < n; i++) {
+                table[i] = new ArrayList<>();
+                table[i].add(readInt());
             }
-            for (int i = 1; i <= N; i++) {
-                int v = Integer.parseInt(st.nextToken());
-                states[i].add(v);
-            }
-            BFS();
+            int ans = BFS(table);
+            System.out.println(ans==-1 ? "IMPOSSIBLE" : ans);
+            n = readInt();
         }
+        while (n!=0);
     }
-    static void BFS(){
+    public static int BFS(List<Integer> [] list) {
         Queue<List<Integer> []> queue = new LinkedList<>();
-        Queue<Integer> steps = new LinkedList<>();
-        queue.add(create_list(states)); steps.add(0);
-        vis.add(states);
-        while (!queue.isEmpty()){
+        Queue<Integer> dis = new LinkedList<>();
+        dis.add(0);
+        queue.add(list);
+        while (!queue.isEmpty()) {
             List<Integer> [] cur = queue.poll();
-            int step_num = steps.poll();
-            if (finished(create_list(cur))) {
-                System.out.println(step_num);
-                return;
-            }
-            for (int i = 1; i <= N; i++) {
-                if (i-1!=0 && cur[i-1].size()==0 && !(cur[i].size()==0)){
-                    cur[i-1] = new ArrayList<>();
-                    int v = cur[i].get(0);
-                    cur[i-1].add(0, v);
-                    cur[i].remove(0);
-                    if (!visited(cur)){
-                        queue.add(create_list(cur)); vis.add(create_list(cur));
-                        steps.add(step_num+1);
+            int d = dis.poll();
+            if (finished(cur)) return d;
+
+            for (int i = 0; i < n-1; i++) {
+                if (cur[i].size()==0) continue;
+                List<Integer> [] nxt = clone(cur);
+                if (nxt[i].get(0)<(nxt[i+1].size()==0?Integer.MAX_VALUE:nxt[i+1].get(0))) {
+                    nxt[i+1].add(0, nxt[i].remove(0));
+                    if (!visited(nxt)) {
+                        queue.add(nxt);
+                        dis.add(d+1);
                     }
-                    cur[i-1].remove(0);
-                    if (cur[i].size()==0) cur[i] = new ArrayList<>();
-                    cur[i].add(0, v);
-                }
-                if (i+1<=N && cur[i+1].size()==0 && !(cur[i].size()==0)){
-                    cur[i+1] = new ArrayList<>();
-                    int v = cur[i].get(0);
-                    cur[i+1].add(0, v);
-                    cur[i].remove(0);
-                    if (!visited(cur)){
-                        queue.add(create_list(cur)); vis.add(create_list(cur));
-                        steps.add(step_num+1);
-                    }
-                    cur[i+1].remove(0);
-                    if (cur[i].size()==0) cur[i] = new ArrayList<>();
-                    cur[i].add(0, v);
-                }
-                if (i-1!=0 && !(cur[i-1].size()==0) && !(cur[i].size()==0) && cur[i-1].get(0)>cur[i].get(0)){
-                    int v = cur[i].get(0);
-                    cur[i-1].add(0, v);
-                    cur[i].remove(0);
-                    if (!visited(cur)){
-                        queue.add(create_list(cur)); vis.add(create_list(cur));
-                        steps.add(step_num+1);
-                    }
-                    if (cur[i].size()==0) cur[i] = new ArrayList<>();
-                    cur[i].add(0, v);
-                    cur[i-1].remove(0);
-                }
-                if (i+1<=N && !(cur[i+1].size()==0) && !(cur[i].size()==0) && cur[i+1].get(0)>cur[i].get(0)){
-                    int v = cur[i].get(0);
-                    cur[i+1].add(0, v);
-                    cur[i].remove(0);
-                    if (!visited(cur)){
-                        queue.add(create_list(cur)); vis.add(create_list(cur));
-                        steps.add(step_num+1);
-                    }
-                    if (cur[i].size()==0) cur[i] = new ArrayList<>();
-                    cur[i].add(0, v);
-                    cur[i+1].remove(0);
                 }
             }
 
-        }
-        System.out.println("IMPOSSIBLE");
-    }
-    static boolean visited(List<Integer> [] cur){
-        for (List<Integer> [] nxt : vis) {
-            boolean same = true;
-            for (int i = 1; i <= N; i++) {
-                if (nxt[i].size()!=cur[i].size()) same = false;
-                else {
-                    for (int j = 0; j < nxt[i].size(); j++) {
-                        if (!nxt[i].get(j).equals(cur[i].get(j))) same = false;
+            for (int i = n-1; i > 0; i--) {
+                if (cur[i].size()==0) continue;
+                List<Integer> [] nxt = clone(cur);
+                if (nxt[i].get(0)<(nxt[i-1].size()==0?Integer.MAX_VALUE:nxt[i-1].get(0))) {
+                    nxt[i-1].add(0, nxt[i].remove(0));
+                    if (!visited(nxt)) {
+                        queue.add(nxt);
+                        dis.add(d+1);
                     }
                 }
             }
-            if (same) return true;
         }
-        return false;
-
+        return -1;
     }
-    static boolean finished(List<Integer> [] cur){
-        for (int i = 1; i <= N; i++) {
-            if (cur[i].size()==0) return false;
-            if (!(cur[i].get(0)==i)) return false;
+    public static boolean visited(List<Integer> [] table) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < n; i++) {
+            List<Integer> col = table[i];
+            for (int nxt : col) {
+                sb.append(nxt);
+            }
+            if (i!=n-1) sb.append("-");
+        }
+        if (!vis.containsKey(sb.toString())) {
+            vis.put(sb.toString(), sb.toString());
+            return false;
+        }
+        else return true;
+    }
+    public static boolean finished(List<Integer> [] table) {
+        for (int i = 0; i < n; i++) {
+            if (table[i].size()!=1) return false;
+            else if (table[i].get(0)!=i+1) return false;
         }
         return true;
     }
-    static List<Integer> [] create_list(List<Integer> [] cur){
-        List<Integer> [] temp = new ArrayList[N+1];
-        for (int i = 0; i < N+1; i++) {
-            temp[i] = new ArrayList<>();
+    public static List<Integer> [] clone(List<Integer> [] table) {
+        List<Integer> [] ret = new List[table.length];
+        for (int i = 0; i < table.length; i++) {
+            ret[i] = new ArrayList<>(table[i]);
         }
-        for (int i = 1; i < N+1; i++) {
-            if (!(cur[i].size()==0)){
-                for (int j = 0; j < cur[i].size(); j++) {
-                    temp[i].add(cur[i].get(j));
-                }
-            }
-        }
-        return temp;
+        return ret;
+    }
+
+    static String next() throws IOException {
+        while (st == null || !st.hasMoreTokens())
+            st = new StringTokenizer(br.readLine().trim());
+        return st.nextToken();
+    }
+    static long readLong() throws IOException {
+        return Long.parseLong(next());
+    }
+    static int readInt() throws IOException {
+        return Integer.parseInt(next());
     }
 }
