@@ -1,6 +1,4 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 /**
  * CCC '13 S3 - Chances of Winning
@@ -11,107 +9,74 @@ import java.util.*;
  */
 public class CCC13S3 {
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    static PrintWriter pr = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
     static StringTokenizer st;
-    static int [] final_score = new int[6];
-    static List<Integer> [] arr = new ArrayList[6];
-    static int T = 0, played = 0, cnt = 0;
-    static String [] scores = new String[6];
-    public static void main(String[] args) throws IOException{
-        T = Integer.parseInt(br.readLine());
-        for (int i = 0; i < 6; i++) {
-            arr[i] = new ArrayList<>();
+    static int mod = (int) 1e9+7, T, G, ans = 0;
+    static int[][] score = new int[5][5];
+    static boolean[][] played = new boolean[5][5];
+    public static void main(String[] args) throws IOException {
+        T = readInt(); G = readInt();
+        for (int i = 0; i < G; i++) {
+            int a = readInt(), b = readInt(), sa = readInt(), sb = readInt();
+            int point = sa==sb?1:3;
+            score[a][b] = sa>=sb?point:0; score[b][a] = sb>=sa?point:0;
+            played[a][b] = true; played[b][a] = true;
         }
-        arr[0].add(1); arr[0].add(2);
-        arr[1].add(1); arr[1].add(3);
-        arr[2].add(1); arr[2].add(4);
-        arr[3].add(2); arr[3].add(3);
-        arr[4].add(2); arr[4].add(4);
-        arr[5].add(3); arr[5].add(4);
-        for (int i = 0; i < 6; i++) {
-            scores[i] = "";
-        }
-        readScore();
-        recurse(played);
-        System.out.println(cnt);
-    }
-    static void readScore() throws IOException {
-        played = Integer.parseInt(br.readLine());
-        for (int i = 0; i < played; i++) {
-            String letter;
-            st = new StringTokenizer(br.readLine());
-            int teamOne = Integer.parseInt(st.nextToken());
-            int teamTwo = Integer.parseInt(st.nextToken());
-            int scoreOne = Integer.parseInt(st.nextToken());
-            int scoreTwo = Integer.parseInt(st.nextToken());
-            if (scoreOne>scoreTwo){
-                letter = "W";
-            }
-            else if (scoreTwo>scoreOne){
-                letter = "L";
-            }
-            else {
-                letter = "T";
-            }
-            for (int j = 0; j < 6; j++) {
-                if (arr[j].contains(teamTwo) && arr[j].contains(teamOne)){
-                    scores[j] = letter;
+        List<int[]> toPlay = new ArrayList<>();
+        for (int i = 1; i <= 4; i++) {
+            for (int j = i+1; j <= 4; j++) {
+                if (!played[i][j]) {
+                    toPlay.add(new int[]{i, j});
                 }
             }
         }
+        winning(toPlay, 0);
+        System.out.println(ans);
     }
-    static void recurse(int games){
-        if (games==6) {
-            if (winning(scores)){
-                cnt+=1;
-            }
+    public static void winning(List<int[]> toPlay, int idx) {
+        if (idx==toPlay.size()) {
+            cnt();
             return;
         }
-        int idx = -1;
-        for (int i = 0; i < 6; i++) {
-            if (scores[i].equals("")) {
-                idx = i;
-                break;
-            }
-        }
-        scores[idx] = "W";
-        recurse(games+1);
-        scores[idx] = "L";
-        recurse(games+1);
-        scores[idx] = "T";
-        recurse(games+1);
-        scores[idx] = "";
+        int [] cur = toPlay.get(idx);
+        // wins
+        score[cur[0]][cur[1]] = 3;
+        score[cur[1]][cur[0]] = 0;
+        winning(toPlay, idx+1);
+        // loses
+        score[cur[0]][cur[1]] = 0;
+        score[cur[1]][cur[0]] = 3;
+        winning(toPlay, idx+1);
+        // ties
+        score[cur[0]][cur[1]] = 1;
+        score[cur[1]][cur[0]] = 1;
+        winning(toPlay, idx+1);
     }
-    static boolean winning(String [] s){
-        final_score = new int[5];
-        boolean no_tie = true;
-        int max_idx = -1;
-        int max = 0;
-        for (int i = 0; i < 6; i++) {
-            if (s[i].equals("W")){
-                final_score[arr[i].get(0)] += 3;
-            }
-            else if (s[i].equals("L")){
-                final_score[arr[i].get(1)] += 3;
-            }
-            else {
-                final_score[arr[i].get(0)] += 1;
-                final_score[arr[i].get(1)] += 1;
-            }
+    public static void cnt() {
+        int fav_score = 0;
+        for (int i = 1; i <= 4; i++) {
+            fav_score+=score[T][i];
         }
-        for (int i = 0; i < 5; i++) {
-            if (final_score[i]>max){
-                max_idx = i;
-                max = final_score[i];
+        for (int i = 1; i <= 4; i++) {
+            if (i==T) continue;
+            int temp = 0;
+            for (int j = 1; j <= 4; j++) {
+                temp+=score[i][j];
             }
+            if (temp>=fav_score) return;
         }
-        for (int i = 0; i < 5; i++) {
-            if (i==max_idx) continue;
-            if (final_score[max_idx] == final_score[i]) {
-                no_tie = false;
-                break;
-            }
-        }
-        return (no_tie&&max_idx==T);
+        ans++;
+    }
+    static String next() throws IOException {
+        while (st == null || !st.hasMoreTokens())
+            st = new StringTokenizer(br.readLine().trim());
+        return st.nextToken();
+    }
+    static long readLong() throws IOException {
+        return Long.parseLong(next());
+    }
+    static int readInt() throws IOException {
+        return Integer.parseInt(next());
     }
 }
 
