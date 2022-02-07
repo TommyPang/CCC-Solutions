@@ -1,7 +1,13 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-
+/**
+ * CCC '15 S5 - Greedy For Pies
+ * Question URL: Dynamic Programming
+ * 15/15 on DMOJ
+ * Question URL: https://dmoj.ca/problem/ccc15s5
+ * @author Tommy Pang
+ */
 int n, m;
 ll dp[3005][105][105][2];
 int A[3005], B[3005];
