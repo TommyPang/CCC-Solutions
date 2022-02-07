@@ -3,7 +3,7 @@ import java.util.*;
 /**
  * CCC '15 S5 - Greedy For Pies
  * Question URL: Dynamic Programming
- * 9/15 on DMOJ, IR for case 9-14
+ * 15/15 on DMOJ
  * Question URL: https://dmoj.ca/problem/ccc15s5
  * @author Tommy Pang
  */
@@ -12,44 +12,46 @@ public class CCC15S5 {
     static PrintWriter pr = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
     static StringTokenizer st;
     static int mod = (int) 1e9+7, n, m;
-    static int[] A = new int[3005], B = new int[105];
-    static long[][][] dp;
+    // dp[i][L][R][0/1] -> we are at position i of the regular(N) pies
+    // we have [L, R] that marks the range of the sorted M pies that are still available
+    // and we can take(1) or cannot take(0) current one
+    static int[][][][] dp = new int[3005][2][105][105];
+    static int[] A, B;
     public static void main(String[] args) throws IOException {
-        n = readInt(); for (int i = 0; i < n; i++) A[i] = readInt();
-        m = readInt(); for (int i = 0; i < m; i++) B[i] = readInt();
-        dp = new long[n+1][1<<m][2]; // 1<<m will overflow for larger m
-        System.out.println(recursion(0, 0, false));
+        n = readInt(); A = new int[n+1];
+        for (int i = 1; i <= n; i++) A[i] = readInt();
+        m = readInt(); B = new int[m+1];
+        for (int i = 1; i <= m; i++) B[i] = readInt();
+        Arrays.sort(B);
+        for (int i = 0; i < 3005; i++) {
+            for (int j = 0; j < 2; j++) {
+                for (int k = 0; k < 105; k++) {
+                    for (int l = 0; l < 105; l++) {
+                        dp[i][j][k][l] = -1;
+                    }
+                }
+            }
+        }
+        System.out.println(recursion(1, 1, m, 1));
     }
-
-    public static long recursion(int i, int msk, boolean taken) {
-        if (i==n && msk==(1<<m)-1) return 0;
-        int k = taken?1:0;
-        if (dp[i][msk][k]!=0) return dp[i][msk][k];
-        long ret = 0;
-        if (taken) {
-            if (i<n) ret = Math.max(ret, recursion(i+1, msk, false)); // waste element A
-            for (int j = 0; j < m; j++) {
-                if ((msk>>j & 1) == 0) {
-                    ret = Math.max(ret, recursion(i, msk | (1<<j), false)); // waste element B
-                }
-            }
+    public static int recursion(int i, int L, int R, int can) {
+        if (dp[i][can][L][R]!=-1) return dp[i][can][L][R];
+        int ret = 0;
+        if (i<=n) {
+            // take current one
+            if (can==1) ret = Math.max(ret, recursion(i+1, L, R, 0) + A[i]);
+            // skip current one
+            ret = Math.max(ret, recursion(i+1, L, R, 1));
         }
-        else {
-            if (i<n) {
-                ret = Math.max(ret, recursion(i + 1, msk, true) + A[i]); // take element A
-                ret = Math.max(ret, recursion(i + 1, msk, false)); // skip element A
-            }
-            for (int j = 0; j < m; j++) {
-                if ((msk>>j & 1) == 0) {
-                    ret = Math.max(ret, recursion(i, msk | (1<<j), true) + B[j]); // take element B
-                    ret = Math.max(ret, recursion(i, msk | (1<<j), false)); // skip element B
-                }
-            }
+        if (L<=R) {
+            // insert and waste current one
+            ret = Math.max(ret, recursion(i, L+1, R, 1));
+            // insert and take current one
+            if (can==1) ret = Math.max(ret, recursion(i, L, R-1, 0) + B[R]);
         }
-        dp[i][msk][k] = ret;
+        dp[i][can][L][R] = ret;
         return ret;
     }
-
 
 
     static String next() throws IOException {
