@@ -1,234 +1,156 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 /**
  * CCC '18 S3 - RoboThieves
- * Question type: Graph Theory
- * 10/15 on DMOJ, TLE on Batch 5
+ * Question URL: Graph Theory
+ * 15/15 on DMOJ
  * Question URL: https://dmoj.ca/problem/ccc18s3
  * @author Tommy Pang
  */
 public class CCC18S3 {
-    static StringTokenizer st;
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    static String [][] layout;
-    static boolean [][] cameraArea;
-    static List<Integer> destR = new ArrayList<>(), destC = new ArrayList<>(), CamR = new ArrayList<>(), CamC = new ArrayList<>();
-    static int startR, startC, r, c;
-    public static void main(String[] args) throws IOException{
-        st = new StringTokenizer(br.readLine());
-        r = Integer.parseInt(st.nextToken());
-        c = Integer.parseInt(st.nextToken());
-        layout = new String[r][c];
-        cameraArea = new boolean[r][c];
-        for (int i = 0; i < r; i++) {
-            st = new StringTokenizer(br.readLine());
-            String line = st.nextToken();
-            for (int j = 0; j < c; j++) {
-                String s = String.valueOf(line.charAt(j));
-                if (s.equals("S")) {
-                    startR = i;
-                    startC = j;
+    static PrintWriter pr = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
+    static StringTokenizer st;
+    static int mod = (int) 1e9+7, n, m, startR, startC;
+    static boolean[][] camera;
+    static boolean[][] robot;
+    static boolean[][] convey;
+    static Queue<int[]> queue;
+    static char[][] grid;
+    static int[][] dis;
+    static List<int[]> cameras = new ArrayList<>();
+    static List<int[]> exits = new ArrayList<>();
+    static int[] dr = new int[] {0, 0, -1, 1}, dc = new int[] {-1, 1, 0, 0};
+    public static void main(String[] args) throws IOException {
+        n = readInt(); m = readInt();
+        grid = new char[n][m]; convey = new boolean[n][m];
+        for (int i = 0; i < n; i++) {
+            grid[i] = readLine().toCharArray();
+            for (int j = 0; j < m; j++) {
+                if (grid[i][j]=='S') {
+                    startR = i; startC = j;
                 }
-                else if (s.equals(".")) {
-                    destR.add(i);
-                    destC.add(j);
+                else if (grid[i][j]=='C') {
+                    cameras.add(new int[] {i, j});
                 }
-                else if (s.equals("C")) {
-                    CamR.add(i); CamC.add(j);
+                else if (grid[i][j]=='.') {
+                    exits.add(new int[]{i, j});
                 }
-                layout[i][j] = s;
+                else if (grid[i][j]!='W'){
+                    convey[i][j] = true;
+                }
             }
         }
-        FindCameraArea();
-        BFSOutPut();
-    }
+        cameraBFS();
+        robotBFS();
+        for (int[] e : exits) {
+            int ans = dis[e[0]][e[1]];
+            System.out.println(ans == Integer.MAX_VALUE ? -1 : ans);
+        }
 
-    static void BFSOutPut(){
-        Queue<Integer> qr = new LinkedList<>();
-        Queue<Integer> qc = new LinkedList<>();
-        boolean [][] vis = new boolean[r][c];
-        if (cameraArea[startR][startC]) {
-            for (int i = 0; i < destR.size(); i++) {
-                System.out.println(-1);
-            }
-            return;
-        }
-        int [][] dis = new int[r][c];
-        qr.add(startR); qc.add(startC);
-        vis[startR][startC] = true;
+    }
+    public static void robotBFS() {
+        queue = new LinkedList<>();
+        queue.add(new int[]{ startR, startC });
+        robot = new boolean[n][m];
+        robot[startR][startC] = true;
+        dis = new int[n][m];
+        for (int i = 0; i < n; i++) Arrays.fill(dis[i], Integer.MAX_VALUE);
         dis[startR][startC] = 0;
-        while (!qr.isEmpty()) {
-            int cr = qr.poll();
-            int cc = qc.poll();
-            if (layout[cr][cc].equals("U") || layout[cr][cc].equals("D") || layout[cr][cc].equals("L") || layout[cr][cc].equals("R")){
-                switch (layout[cr][cc]){
-                    case "U":
-                        qr.add(cr - 1);
-                        qc.add(cc);
-                        dis[cr - 1][cc] = dis[cr][cc];
-                    case "D":
-                        qr.add(cr + 1);
-                        qc.add(cc);
-                        dis[cr + 1][cc] = dis[cr][cc];
-                    case "L":
-                        qr.add(cr);
-                        qc.add(cc - 1);
-                        dis[cr][cc-1] = dis[cr][cc] + 1;
-                    case "R":
-                        qr.add(cr);
-                        qc.add(cc + 1);
-                        dis[cr][cc + 1] = dis[cr][cc];
+        if (camera[startR][startC]) return;
+        while (!queue.isEmpty()) {
+            int[] cur = queue.poll();
+            int row = cur[0], col = cur[1];
+            int[] conveyed = conveyors(row, col);
+            if (conveyed.length!=0) {
+                if (valid(conveyed[0], conveyed[1], row, col, 0)) {
+                    robot[conveyed[0]][conveyed[1]] = true;
+                    dis[conveyed[0]][conveyed[1]] = dis[row][col];
+                    queue.add(new int[] {conveyed[0], conveyed[1]});
                 }
             }
-            if (cr+1<r && !vis[cr+1][cc] && !layout[cr+1][cc].equals("W")){
-                if (layout[cr+1][cc].equals(".") && !cameraArea[cr+1][cc]) {
-                    qr.add(cr + 1);
-                    qc.add(cc);
-                    vis[cr + 1][cc] = true;
-                    dis[cr + 1][cc] = dis[cr][cc] + 1;
-                }
-                else {
-                    switch (layout[cr+1][cc]){
-                        case "D":
-                            if(!layout[cr+2][cc].equals("W") && !cameraArea[cr+2][cc] && !vis[cr+2][cc]){
-                                qr.add(cr+2);
-                                qc.add(cc);
-                                dis[cr+2][cc] = dis[cr][cc] + 1;
-                                vis[cr+2][cc] = true;
-                            }
-                        case "U":
-                        case "L":
-                            if(!layout[cr+1][cc-1].equals("W") && !cameraArea[cr+1][cc-1] && !vis[cr+1][cc-1]){
-                                qr.add(cr+1);
-                                qc.add(cc-1);
-                                dis[cr+1][cc-1] = dis[cr][cc] + 1;
-                                vis[cr+1][cc-1] = true;
-                            }
-                        case "R":
-                            if(!layout[cr+1][cc+1].equals("W") && !cameraArea[cr+1][cc+1] && !vis[cr+1][cc+1]){
-                                qr.add(cr+1);
-                                qc.add(cc+1);
-                                dis[cr+1][cc+1] = dis[cr][cc] + 1;
-                                vis[cr+1][cc+1] = true;
-                            }
-                    }
-                }
-            }
-            if (cr-1>0 && !vis[cr-1][cc] && !layout[cr-1][cc].equals("W")){
-                if (layout[cr-1][cc].equals(".") && !cameraArea[cr-1][cc]) {
-                    qr.add(cr - 1);
-                    qc.add(cc);
-                    vis[cr - 1][cc] = true;
-                    dis[cr - 1][cc] = dis[cr][cc] + 1;
-                }
-                else {
-                    switch (layout[cr-1][cc]){
-                        case "U":
-                            if(!layout[cr-2][cc].equals("W") && !cameraArea[cr-2][cc] && !vis[cr-2][cc]){
-                                qr.add(cr-2); qc.add(cc); dis[cr-2][cc] = dis[cr][cc] + 1; vis[cr-2][cc] = true;
-                            }
-                        case "D":
-                        case "L":
-                            if(!layout[cr-1][cc-1].equals("W") && !cameraArea[cr-1][cc-1] && !vis[cr-1][cc-1]){
-                                qr.add(cr-1); qc.add(cc-1); dis[cr-1][cc-1] = dis[cr][cc] + 1; vis[cr-1][cc-1] = true;
-                            }
-                        case "R":
-                            if(!layout[cr-1][cc+1].equals("W") && !cameraArea[cr-1][cc+1] && !vis[cr-1][cc+1]){
-                                qr.add(cr-1); qc.add(cc+1); dis[cr-1][cc+1] = dis[cr][cc] + 1; vis[cr-1][cc+1] = true;
-                            }
-                    }
-                }
-            }
-            if (cc+1<c && !vis[cr][cc+1] && !layout[cr][cc+1].equals("W")){
-                if (layout[cr][cc+1].equals(".") && !cameraArea[cr][cc+1]) {
-                    qr.add(cr);
-                    qc.add(cc + 1);
-                    vis[cr][cc + 1] = true;
-                    dis[cr][cc + 1] = dis[cr][cc] + 1;
-                }
-                else {
-                    switch (layout[cr][cc+1]){
-                        case "U":
-                            if(!layout[cr-1][cc+1].equals("W") && !cameraArea[cr-1][cc+1] && !vis[cr-1][cc+1]){
-                                qr.add(cr-1); qc.add(cc+1); dis[cr-1][cc+1] = dis[cr][cc] + 1; vis[cr-1][cc+1] = true;
-                            }
-                        case "D":
-                            if(!layout[cr+1][cc+1].equals("W") && !cameraArea[cr+1][cc+1] && !vis[cr+1][cc+1]){
-                                qr.add(cr+1); qc.add(cc+1); dis[cr+1][cc+1] = dis[cr][cc] + 1; vis[cr+1][cc+1] = true;
-                            }
-                        case "L":
-                        case "R":
-                            if(!layout[cr][cc+2].equals("W") && !cameraArea[cr][cc+2] && !vis[cr][cc+2]){
-                                qr.add(cr); qc.add(cc+2); dis[cr][cc+2] = dis[cr][cc] + 1; vis[cr][cc+2] = true;
-                            }
-                    }
-                }
-            }
-            if (cc-1>0 && !vis[cr][cc-1] && !layout[cr][cc-1].equals("W")){
-                if (layout[cr][cc-1].equals(".") && !cameraArea[cr][cc-1]) {
-                    qr.add(cr);
-                    qc.add(cc - 1);
-                    vis[cr][cc - 1] = true;
-                    dis[cr][cc - 1] = dis[cr][cc] + 1;
-                }
-                else {
-                    switch (layout[cr][cc-1]){
-                        case "U":
-                            if(!layout[cr-1][cc-1].equals("W") && !cameraArea[cr-1][cc-1] && !vis[cr-1][cc-1]){
-                                qr.add(cr-1); qc.add(cc-1); dis[cr-1][cc-1] = dis[cr][cc] + 1; vis[cr-1][cc-1] = true;
-                            }
-                        case "D":
-                            if(!layout[cr+1][cc-1].equals("W") && !cameraArea[cr+1][cc-1] && !vis[cr+1][cc-1]){
-                                qr.add(cr+1); qc.add(cc-1); dis[cr+1][cc-1] = dis[cr][cc] + 1; vis[cr+1][cc-1] = true;
-                            }
-                        case "L":
-                            if(!layout[cr][cc-2].equals("W") && !cameraArea[cr][cc-2] && !vis[cr][cc-2]){
-                                qr.add(cr); qc.add(cc-2); dis[cr][cc-2] = dis[cr][cc] + 1; vis[cr][cc-2] = true;
-                            }
-                        case "R":
+            else {
+                for (int i = 0; i < 4; i++) {
+                    if (valid(row+dr[i], col+dc[i], row, col, 1)) {
+                        robot[row+dr[i]][col+dc[i]] = true;
+                        dis[row+dr[i]][col+dc[i]] = dis[row][col]+1;
+                        queue.add(new int[] {row+dr[i], col+dc[i]});
                     }
                 }
             }
         }
-        for (int i = 0; i < destR.size(); i++) {
-            if (!vis[destR.get(i)][destC.get(i)]) System.out.println(-1);
-            else System.out.println(dis[destR.get(i)][destC.get(i)]);
+    }
+    public static void cameraBFS() {
+        queue = new LinkedList<>();
+        camera = new boolean[n][m];
+        for (int[] c : cameras) {
+            for (int i = 0; i < 4; i++) {
+                int tempR = c[0], tempC = c[1];
+                while (grid[tempR][tempC]!='W') {
+                    if (!convey[tempR][tempC]) camera[tempR][tempC] = true;
+                    tempR+=dr[i]; tempC+=dc[i];
+                }
+            }
         }
+    }
+    public static boolean valid(int i, int j, int curi, int curj, int v) {
+        return (!camera[i][j] && grid[i][j]!='W' && dis[i][j]>dis[curi][curj]+v);
+    }
+    public static int[] conveyors (int i, int j) {
+        if (grid[i][j]=='U') {
+            return new int[] {i-1, j};
+        }
+        else if (grid[i][j]=='D') {
+            return new int[] {i+1, j};
+        }
+        else if (grid[i][j]=='L') {
+            return new int[] {i, j-1};
+        }
+        else if (grid[i][j]=='R') {
+            return new int[] {i, j+1};
+        }
+        return new int[0];
     }
 
 
-
-    static void FindCameraArea(){
-        for (int i = 0; i < CamR.size(); i++) {
-            int row = CamR.get(i);
-            int col = CamC.get(i);
-            cameraArea[row][col] = true;
-            for (int j = col; j < c; j++) {
-                if (layout[row][j].equals("W")) break;
-                if (layout[row][j].equals(".") || layout[row][j].equals("S")){
-                    cameraArea[row][j] = true;
-                }
-            }
-            for (int j = col-1; j > 0; j--) {
-                if (layout[row][j].equals("W")) break;
-                if (layout[row][j].equals(".") || layout[row][j].equals("S")){
-                    cameraArea[row][j] = true;
-                }
-            }
-            for (int j = row; j < r; j++) {
-                if (layout[j][col].equals("W")) break;
-                if (layout[j][col].equals(".") || layout[j][col].equals("S")){
-                    cameraArea[j][col] = true;
-                }
-            }
-            for (int j = row-1; j > 0; j--) {
-                if (layout[j][col].equals("W")) break;
-                if (layout[j][col].equals(".") || layout[j][col].equals("S")){
-                    cameraArea[j][col] = true;
-                }
-            }
-        }
+    static String next() throws IOException {
+        while (st == null || !st.hasMoreTokens())
+            st = new StringTokenizer(br.readLine().trim());
+        return st.nextToken();
+    }
+    static long readLong() throws IOException {
+        return Long.parseLong(next());
+    }
+    static int readInt() throws IOException {
+        return Integer.parseInt(next());
+    }
+    static double readDouble() throws IOException {
+        return Double.parseDouble(next());
+    }
+    static char readCharacter() throws IOException {
+        return next().charAt(0);
+    }
+    static String readLine() throws IOException {
+        return br.readLine().trim();
+    }
+    static int readLongLineInt() throws IOException{
+        int x = 0, c;
+        while((c = br.read()) != ' ' && c != '\n')
+            x = x * 10 + (c - '0');
+        return x;
+    }
+    static long pow (long x, long exp){
+        if (exp==0) return 1;
+        long t = pow(x, exp/2);
+        t = t*t %mod;
+        if (exp%2 == 0) return t;
+        return t*x%mod;
+    }
+    static long lcm(long a, long b) {
+        return (a / gcd(a, b)) * b;
+    }
+    static long gcd(long a, long b) {
+        if (b == 0) return a;
+        return gcd(b, a % b);
     }
 }
