@@ -5,7 +5,7 @@ import java.util.StringTokenizer;
 /**
  * CCC '19 S3 - Arithmetic Square
  * Question type: Implementation
- * 11/16 on DMOJ, WA on Batch 4-6
+ * 16/16 on DMOJ
  * Question URL: https://dmoj.ca/problem/ccc19s3
  * @author Tommy Pang
  */
@@ -15,97 +15,46 @@ public class CCC19S3 {
     static PrintWriter pr = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
     static StringTokenizer st;
     static int mod = (int) 1e9+7;
-    static int[][] grid = new int[3][3];
     public static void main(String[] args) throws IOException {
-        for (int i = 0; i < 3; i++) {
-            String[] lines = readLine().split(" ");
-            for (int j = 0; j < 3; j++) {
-                grid[i][j] = lines[j].equals("X") ? Integer.MIN_VALUE : Integer.parseInt(lines[j]);
+        int a[][] = new int[3][3], x[][] = new int[3][3], row[] = new int[3], col[] = new int[3], cnt=0;
+        for(int i=0; i<3; i++){
+            for(int j=0; j<3; j++){
+                String s = next();
+                if(s.equals("X")) { x[i][j] = 1; row[i]++; col[j]++; cnt++; }
+                else a[i][j] = Integer.parseInt(s);
             }
         }
-        solve();
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                System.out.print(grid[i][j] + " ");
+        while(cnt > 0){
+            boolean flag = true;
+            for(int i=0; i<3 && flag; i++){
+                if(row[i] == 1){
+                    if(x[i][0] == 1) { a[i][0] = 2*a[i][1] - a[i][2]; x[i][0] = 0; col[0]--; }
+                    if(x[i][1] == 1) { a[i][1] = (a[i][0] + a[i][2])/2; x[i][1] = 0; col[1]--; }
+                    if(x[i][2] == 1) { a[i][2] = 2*a[i][1] - a[i][0]; x[i][2] = 0; col[2]--; }
+                    cnt --; row[i]--;  flag = false;
+                }
             }
+            for(int i=0; i<3 && flag; i++){
+                if(col[i] == 1){
+                    if(x[0][i] == 1) { a[0][i] = 2*a[1][i] - a[2][i]; x[0][i] = 0; row[0]--; }
+                    if(x[1][i] == 1) { a[1][i] = (a[0][i] + a[2][i])/2; x[1][i] = 0; row[1]--; }
+                    if(x[2][i] == 1) { a[2][i] = 2*a[1][i] - a[0][i]; x[2][i] = 0; row[2]--; }
+                    cnt --; col[i]--;   flag = false;
+                }
+            }
+            if(x[1][1] == 1 && flag) { a[1][1] = 0; row[1]--; col[1]--; cnt--; x[1][1]=0; flag = false; }
+            if(x[1][0] == 1 && flag) { a[1][0] = 0; row[1]--; col[0]--; cnt--; x[1][0]=0; flag = false; }
+            if(x[1][2] == 1 && flag) { a[1][2] = 0; row[1]--; col[2]--; cnt--; x[1][2]=0; flag = false; }
+            if(x[0][1] == 1 && flag) { a[0][1] = 0; row[0]--; col[1]--; cnt--; x[0][1]=0; flag = false; }
+            if(x[2][1] == 1 && flag) { a[2][1] = 0; row[2]--; col[1]--; cnt--; x[2][1]=0; flag = false; }
+            if(x[0][0] == 1 && flag) { a[0][0] = 0; row[0]--; col[0]--; cnt--; x[0][0]=0; flag = false; }
+        }
+        for(int i=0; i<3; i++){
+            for(int j=0; j<3; j++)
+                System.out.print(a[i][j] + " ");
             System.out.println();
         }
     }
-    public static boolean solve() {
-        int[][] grid2 = copy();
-        easyFill();
-        if (done()) {
-            return true;
-        }
-        loop:
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                if (grid[i][j]!=Integer.MIN_VALUE) continue;
-                for (int k = -30; k <= 30; k++) { // when input is [-10, 10], we have minimum of -30 and maximum of 30
-                    grid[i][j] = k;
-                    boolean res = solve();
-                    if (res) return true;
-                }
-                break loop;
-            }
-        }
-        grid = grid2;
-        return false;
-    }
-    public static int[][] copy() {
-        int[][] tmp = new int[3][3];
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                tmp[i][j] = grid[i][j];
-            }
-        }
-        return tmp;
-    }
-
-    public static void easyFill() {
-        // fill rows
-        for (int i = 0; i < 3; i++) {
-            if (grid[i][0] == Integer.MIN_VALUE && grid[i][1] != Integer.MIN_VALUE && grid[i][2] != Integer.MIN_VALUE) {
-                grid[i][0] = grid[i][1] - (grid[i][2] - grid[i][1]);
-            }
-            if (grid[i][1] == Integer.MIN_VALUE && grid[i][0] != Integer.MIN_VALUE && grid[i][2] != Integer.MIN_VALUE) {
-                grid[i][1] = (grid[i][0] + grid[i][2]) / 2;
-            }
-            if (grid[i][2] == Integer.MIN_VALUE && grid[i][0] != Integer.MIN_VALUE && grid[i][1] != Integer.MIN_VALUE) {
-                grid[i][2] = grid[i][1] + (grid[i][1] - grid[i][0]);
-            }
-        }
-        // cols
-        for (int i = 0; i < 3; i++) {
-            if (grid[0][i] == Integer.MIN_VALUE && grid[1][i] != Integer.MIN_VALUE && grid[2][i] != Integer.MIN_VALUE) {
-                grid[0][i] = grid[1][i] - (grid[2][i] - grid[1][i]);
-            }
-            if (grid[1][i] == Integer.MIN_VALUE && grid[0][i] != Integer.MIN_VALUE && grid[2][i] != Integer.MIN_VALUE) {
-                grid[1][i] = (grid[0][i] + grid[2][i]) / 2;
-            }
-            if (grid[2][i] == Integer.MIN_VALUE && grid[0][i] != Integer.MIN_VALUE && grid[1][i] != Integer.MIN_VALUE) {
-                grid[2][i] = grid[1][i] + (grid[1][i] - grid[0][i]);
-            }
-        }
-    }
-    public static boolean done() {
-        int ret = 0;
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                if (grid[i][j]!=Integer.MIN_VALUE) ret++;
-            }
-        }
-        if (ret<9) return false;
-        if (grid[2][0]-grid[1][0]!=grid[1][0]-grid[0][0]) return false; // c1
-        if (grid[2][1]-grid[1][1]!=grid[1][1]-grid[0][1]) return false; // c2
-        if (grid[2][2]-grid[1][2]!=grid[1][2]-grid[0][2]) return false; // c3
-
-        if (grid[0][2]-grid[0][1]!=grid[0][1]-grid[0][0]) return false; // r1
-        if (grid[1][2]-grid[1][1]!=grid[1][1]-grid[1][0]) return false; // r2
-        if (grid[2][2]-grid[2][1]!=grid[2][1]-grid[2][0]) return false; // r3
-        return true;
-    }
-
 
 
 
