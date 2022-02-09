@@ -8,35 +8,48 @@ import java.util.*;
  * @author Tommy Pang
  */
 public class CCC20S1 {
-    static StringTokenizer st;
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    static long [] time, dis;
-    static double ans = 0;
+    static PrintWriter pr = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
+    static StringTokenizer st;
+    static int mod = (int) 1e9+7, n;
     public static void main(String[] args) throws IOException {
-        Map<Long, Long> map = new HashMap<>();
-        int cases = Integer.parseInt(br.readLine());
-        time = new long[cases]; dis = new long[cases];
-        for (int i = 0; i < cases; i++) {
-            st = new StringTokenizer(br.readLine());
-            long t = Long.parseLong(st.nextToken());
-            long d = Long.parseLong(st.nextToken());
-            time[i] = t;
-            dis[i] = d;
-            map.put(t, d);
+        n = readInt();
+        List<info> list = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            list.add(new info(readInt(), readInt()));
         }
-        Arrays.sort(time);
-        long pre_time = -1, pre_dis = -1;
-        for (int i = 0; i < cases; i++) {
-            if (pre_time==-1) {
-                pre_time = time[i];
-                pre_dis = map.get(pre_time);
-            }
-            else {
-               double res = Math.abs((double) map.get(time[i]) - pre_dis)/Math.abs((double) time[i] - pre_time);
-               ans = Math.max(res, ans);
-               pre_dis = map.get(time[i]); pre_time = time[i];
-            }
+        Collections.sort(list);
+        double ans = 0;
+        for (int i = 0; i < n-1; i++) {
+            info cur = list.get(i), nxt = list.get(i+1);
+            ans = Math.max(((double) Math.abs(cur.X - nxt.X)) / Math.abs(cur.T-nxt.T), ans);
         }
         System.out.println(ans);
+    }
+    public static class info implements Comparable<info> {
+        int T, X;
+        info(int time, int dis) {
+            T = time; X = dis;
+        }
+
+        @Override
+        public int compareTo(info o) {
+            return T-o.T; // sort by time
+        }
+    }
+
+
+
+
+    static String next() throws IOException {
+        while (st == null || !st.hasMoreTokens())
+            st = new StringTokenizer(br.readLine().trim());
+        return st.nextToken();
+    }
+    static long readLong() throws IOException {
+        return Long.parseLong(next());
+    }
+    static int readInt() throws IOException {
+        return Integer.parseInt(next());
     }
 }
