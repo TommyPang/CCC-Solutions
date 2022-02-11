@@ -3,33 +3,66 @@ import java.util.*;
 /**
  * CCC '20 S4 - Swapping Seats
  * Question type: Greedy Algorithms
- * 8/15 on DMOJ, WA on Batch 3 and 4
+ * 15/15 on DMOJ
  * Question URL: https://dmoj.ca/problem/ccc20s4
  * @author Tommy Pang
  */
 public class CCC20S4 {
-    static StringTokenizer st;
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    static int a_num, b_num, c_num;
-
+    static PrintWriter pr = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
+    static StringTokenizer st;
+    static int mod = (int) 1e9+7, n;
+    static int[] A, B, C;
+    static int cntA, cntB, cntC, ans= Integer.MAX_VALUE;
     public static void main(String[] args) throws IOException {
-        // Only Works if there's no C character
-        String seats = br.readLine();
-        int [] preSumB = new int[seats.length()+1];
-        for (int i = 1; i <= seats.length(); i++) {
-            if (seats.charAt(i-1)=='B') preSumB[i] = preSumB[i-1]+1;
-            else preSumB[i] = preSumB[i-1];
-            if (seats.charAt(i-1)=='A') a_num+=1;
+        String s = readLine(); n = s.length();
+        A = new int[n+1]; B = new int[n+1]; C = new int[n+1];
+        for (int i = 1; i <= n; i++) {
+            A[i] = A[i-1]; B[i] = B[i-1]; C[i] = C[i-1];
+            char c = s.charAt(i-1);
+            if (c=='A') A[i]++;
+            else if (c=='B') B[i]++;
+            else C[i]++;
         }
-        int ans = 1000000;
-        for (int i = 0; i <= seats.length()-a_num; i++) {
-            int cnt = preSumB[a_num+i]-preSumB[i];
-            ans = Math.min(ans, cnt);
-        }
-        for (int i = seats.length()-a_num+1; i < seats.length(); i++) {
-            int cnt = preSumB[seats.length()] + preSumB[a_num-(seats.length()-i)] - preSumB[i];
-            ans = Math.min(ans, cnt);
+        cntA = A[n]; cntB = B[n]; cntC = C[n];
+        for (int l = 1; l <= n; l++) {
+            if (l>=cntA+cntB) {
+                compute(A, B, l); compute(B, A, l);
+            }
+            if (l>=cntA+cntC) {
+                compute(A, C, l); compute(C, A, l);
+            }
+            if (l>=cntB+cntC) {
+                compute(B, C, l); compute(C, B, l);
+            }
         }
         System.out.println(ans);
+    }
+    public static void compute(int[] x, int[] y, int i) {
+        int nx = x[n], ny = y[n];
+        int sum = ny - (y[i]-y[i-ny]) + nx - (x[i-ny] - x[i-ny-nx]);
+        int both = Math.min(y[i-ny] - y[i-ny-nx], x[i] - x[i-ny]);
+        ans = Math.min(sum-both, ans);
+    }
+
+    static String next() throws IOException {
+        while (st == null || !st.hasMoreTokens())
+            st = new StringTokenizer(br.readLine().trim());
+        return st.nextToken();
+    }
+    static long readLong() throws IOException {
+        return Long.parseLong(next());
+    }
+    static int readInt() throws IOException {
+        return Integer.parseInt(next());
+    }
+    static double readDouble() throws IOException {
+        return Double.parseDouble(next());
+    }
+    static char readCharacter() throws IOException {
+        return next().charAt(0);
+    }
+    static String readLine() throws IOException {
+        return br.readLine().trim();
     }
 }
