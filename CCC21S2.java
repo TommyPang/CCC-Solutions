@@ -1,6 +1,4 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -12,45 +10,51 @@ import java.util.StringTokenizer;
  * @author Tommy Pang
  */
 public class CCC21S2 {
-    static StringTokenizer st;
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    static List<Integer> rs = new ArrayList<>(), cs = new ArrayList<>();
-    static boolean [] r, c;
+    static PrintWriter pr = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
+    static StringTokenizer st;
+    static int mod = (int) 1e9+7, m, n, k;
+    static int[] row, col;
     public static void main(String[] args) throws IOException {
-        int M = Integer.parseInt(br.readLine());
-        int N = Integer.parseInt(br.readLine());
-        r = new boolean[M+1]; c = new boolean[N+1];
-        int K = Integer.parseInt(br.readLine());
-        int ans = 0;
-        int rs_size = 0, cs_size = 0;
-        for (int i = 0; i < K; i++) {
-            st = new StringTokenizer(br.readLine());
-            String o = st.nextToken();
-            int v = Integer.parseInt(st.nextToken());
-            if (o.equals("R")){
-                if (!r[v]) {
-                    r[v] = true;
-                    rs_size+=1;
-                }
-                else {
-                    rs_size -= 1;
-                    r[v] = false;
-                }
+        m = readInt(); n = readInt(); k = readInt();
+        row = new int[m+1]; col = new int[n+1];
+        for (int i = 0; i < k; i++) {
+            char c = readCharacter();
+            int idx = readInt();
+            if (c=='R') {
+                row[idx]++;
             }
             else {
-                if (!c[v]) {
-                    c[v] = true;
-                    cs_size+=1;
-                }
-                else {
-                    cs_size -= 1;
-                    c[v] = false;
+                col[idx]++;
+            }
+        }
+        int ans = 0;
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                int painted = row[i]+col[j];
+                if (painted%2==1) {
+                    ans++;
                 }
             }
         }
-        ans+=(rs_size*N);
-        ans-=(cs_size*rs_size);
-        ans+=((M-rs_size)*cs_size);
         System.out.println(ans);
+    }
+
+    static String next() throws IOException {
+        while (st == null || !st.hasMoreTokens())
+            st = new StringTokenizer(br.readLine().trim());
+        return st.nextToken();
+    }
+    static long readLong() throws IOException {
+        return Long.parseLong(next());
+    }
+    static int readInt() throws IOException {
+        return Integer.parseInt(next());
+    }
+    static double readDouble() throws IOException {
+        return Double.parseDouble(next());
+    }
+    static char readCharacter() throws IOException {
+        return next().charAt(0);
     }
 }
